@@ -16,6 +16,7 @@ var auditTask = function(taskEl) {
   } 
   else if (Math.abs(moment().diff(time, "days")) <= 2) {
     $(taskEl).addClass("list-group-item-warning");
+    console.log(taskEl);
   }
 };
 
@@ -73,16 +74,18 @@ $(".card .list-group").sortable({
   tolerance: "pointer",
   helper: "clone",
   activate: function(event, ui) {
-    console.log(ui);
+    $(this).addClass("dropover");
+    $(".bottom-trash").addClass("bottom-trash-drag");
   },
   deactivate: function(event, ui) {
-    console.log(ui);
+    $(this).removeClass("dropover");
+    $(".bottom-trash").removeClass("bottom-trash-drag");
   },
   over: function(event) {
-    console.log(event);
+    $(event.target).addClass("dropover-active");
   },
   out: function(event) {
-    console.log(event);
+    $(event.target).removeClass("dropover-active");
   },
   update: function() {
     var tempArr = [];
@@ -121,18 +124,24 @@ $("#trash").droppable({
   accept: ".card .list-group-item",
   tolerance: "touch",
   drop: function(event, ui) {
-    console.log("drop");
     ui.draggable.remove();
+    $(".bottom-trash").removeClass("bottom-trash-active");
   },
   over: function(event, ui) {
-    console.log("over");
+    $(".bottom-trash").addClass("bottom-trash-active");
   },
   out: function(event, ui) {
-    console.log("out");
+    $(".bottom-trash").removeClass("bottom-trash-active");
   }
   
 });
- 
+
+
+// convert text field into a jquery date picker
+$("#modalDueDate").datepicker({
+  // force user to select a future date
+  minDate: 1
+});
 
 
 
@@ -264,10 +273,13 @@ $("#remove-tasks").on("click", function() {
 // load tasks for the first time
 loadTasks();
 
-$("#modalDueDate").datepicker({
-  minDate: 1 
-})
 
+setInterval(function () {
+  $(".card .list-group-item").each(function(index, el) {
+    auditTask(el);
+    
+  });
+}, (1000 * 60) * 30);
 
 
 
